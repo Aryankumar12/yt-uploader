@@ -1,89 +1,78 @@
 import React from "react";
-import { Box, Button, Typography, Divider } from "@mui/material";
+import { Box, Button, Typography, Divider, IconButton } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import { useThemeMode } from "../helper/ThemeContext.jsx";
+import { useGoogleLogin, useGoogleOAuth } from "@react-oauth/google";
 
 function Login() {
+  const { mode, toggleMode } = useThemeMode();
+  const login = useGoogleLogin({
+    scope: 'https://www.googleapis.com/auth/youtube.upload',
+    onSuccess : (response) =>{
+      console.log(response);
+      navigate('/upload')
+    },
+    onError:(error) =>{
+      toast.error("Login Error")
+      console.log(error)
+    }
+  })
+
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        display: "flex",
-        bgcolor: "#fafafa",
+    <Box 
+      sx={{ 
+        minHeight: "100vh", 
+        display: "flex", 
+        bgcolor: "background.default", 
+        color: "text.primary",
+        position: "relative" // Allows absolute positioning of the button
       }}
     >
-      {/* Left Section */}
-      <Box
-        sx={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          px: { xs: 4, md: 10 },
+      {/* --- Toggle Button Top Right --- */}
+      <IconButton 
+        onClick={toggleMode} 
+        color="inherit" 
+        sx={{ 
+          position: "absolute", 
+          top: 20, 
+          right: 20, 
+          border: "1px solid", 
+          borderColor: "divider",
+          bgcolor: "background.paper", // Adds a slight background so it's visible over content
+          "&:hover": { bgcolor: "action.hover" }
         }}
       >
-        <Typography
-          variant="h3"
-          fontWeight={700}
-          letterSpacing="-0.5px"
-          gutterBottom
-        >
+        {mode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
+      </IconButton>
+
+      {/* Left Section */}
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", px: { xs: 4, md: 10 } }}>
+        <Typography variant="h3" fontWeight={700} gutterBottom>
           YT Uploader
         </Typography>
-
-        <Typography
-          variant="body1"
-          color="text.secondary"
-          maxWidth={440}
-          lineHeight={1.6}
-        >
+        <Typography variant="body1" color="text.secondary" maxWidth={440}>
           Upload, manage, and organize your YouTube content in one place.
-          Built for creators who value speed and simplicity.
         </Typography>
       </Box>
 
       {/* Right Section */}
-      <Box
-        sx={{
-          flex: 1,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Box minWidth={280}>
-          <Typography
-            variant="h6"
-            fontWeight={500}
-            mb={1}
-            textAlign="center"
-          >
+      <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Box minWidth={280} sx={{ bgcolor: "background.paper", p: 4, borderRadius: 3, boxShadow: 3 }}>
+          <Typography variant="h6" fontWeight={500} mb={2} textAlign="center">
             Sign in to continue
           </Typography>
-
           <Divider sx={{ mb: 3 }} />
-
-          {/* GOOGLE BUTTON — UNCHANGED */}
-          <Button
-            startIcon={<GoogleIcon />}
-            size="large"
-            variant="outlined"
-            fullWidth
-            onClick={() => {
-              console.log("Logging with google");
-            }}
+          <Button 
+            startIcon={<GoogleIcon />} 
+            size="large" 
+            variant="outlined" 
+            fullWidth 
+            onClick={() => login() }
           >
             Login with Google
           </Button>
-
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            display="block"
-            mt={2}
-            textAlign="center"
-          >
-            We’ll never post anything without your permission
-          </Typography>
         </Box>
       </Box>
     </Box>
